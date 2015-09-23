@@ -5,7 +5,7 @@ from ovirtsdk.api import API
 import sys
 import time
 
-ENGINE_SERVER = "https://ovirt.hybdc.com"
+ENGINE_SERVER = "https://ovirt.com
 ENGINE_USER = "admin@internal"
 ENGINE_PASS = "senha@123"
 ENGINE_CERT = "/etc/pki/ovirt-engine/ca.pem"
