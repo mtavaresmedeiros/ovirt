@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+#teste
 from ovirtsdk.xml import params
 from ovirtsdk.api import API
 import sys
