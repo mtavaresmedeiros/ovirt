@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+ENGINE_SERVER = "https://ovirt.com"
+ENGINE_USER = "admin@internal"
+ENGINE_PASS = "password"
+ENGINE_CERT = "/etc/pki/ovirt-engine/ca.pem"
+
 TIME_LIMIT = 400
 SLEEP = 10
 TIME_LIMIT_EX = 1800
