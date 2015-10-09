@@ -301,7 +301,7 @@ def DetachExpoDomain(DC_NAME, EXPORT_NAME, SLEEP, TIME_LIMIT):
             DC = api.datacenters.get(DC_NAME)
             DC.storagedomains.get(EXPORT_NAME).delete()
             while True:
-                sd_status = if api.storagedomains.get(EXPORT_NAME).status.state
+                sd_status = api.storagedomains.get(EXPORT_NAME).status.state
                 if sd_status == 'unattached':
                     break
                 if TIME_WAITING >= TIME_LIMIT:
