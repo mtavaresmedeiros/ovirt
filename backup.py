@@ -6,10 +6,6 @@ from ovirtsdk.xml import params
 from ovirtsdk.api import API
 import sys
 
-ENGINE_SERVER = "https://ovirt.com"
-ENGINE_USER = "admin@internal"
-ENGINE_PASS = "password"
-ENGINE_CERT = "/etc/pki/ovirt-engine/ca.pem"
 
 api = Connect(ENGINE_SERVER, ENGINE_USER, ENGINE_PASS, ENGINE_CERT)
 if not api:
