@@ -18,24 +18,21 @@ if not api:
 vms = api.vms.list()
 
 listas = [[], [], []]
+threads = listas
+
 indice = 0
 for vm in vms:
     listas[indice].append(vm)
     indice += 1
     if indice == len(listas):
         indice = 0
-try:
-    t1 = Thread(target=backup, args=(listas[0],))
-    t1.start()
-    t2 = Thread(target=backup, args=(listas[1],))
-    t2.start()
-    t3 = Thread(target=backup, args=(listas[2],))
-    t3.start()
-    t1.join()
-    t2.join()
-    t3.join()
-except:
-    print "Error: unable to start thread"
+
+for thread_idx in range(len(threads)):
+    threads[thread_idx] = Thread(target=Backup, args=(listas[thread_idx],))
+    threads[thread_idx].start()
+
+for thread_idx in range(len(threads)):
+    threads[thread_idx].join()
 
 if not MainExportDomain(EXPORT_NAME, SLEEP, TIME_LIMIT, DC_NAME):
     Disconnect(1)
