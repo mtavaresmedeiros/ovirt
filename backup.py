@@ -17,19 +17,19 @@ if not api:
 
 vms = api.vms.list()
 
-listas = [[],[],[]]
+listas = [[], [], []]
 indice = 0
 for vm in vms:
-    listas[indice].append(vm)    
+    listas[indice].append(vm)
     indice += 1
     if indice == len(listas):
         indice = 0
 try:
-    t1 = Thread(target=backup,args=(listas[0],))
+    t1 = Thread(target=backup, args=(listas[0],))
     t1.start()
-    t2 = Thread(target=backup,args=(listas[1],))
+    t2 = Thread(target=backup, args=(listas[1],))
     t2.start()
-    t3 = Thread(target=backup,args=(listas[2],))
+    t3 = Thread(target=backup, args=(listas[2],))
     t3.start()
     t1.join()
     t2.join()
@@ -40,6 +40,5 @@ except:
 if not MainExportDomain(EXPORT_NAME, SLEEP, TIME_LIMIT, DC_NAME):
     Disconnect(1)
 
-if not DetachExpoDomain(DC_NAME,EXPORT_NAME, SLEEP, TIME_LIMIT):
+if not DetachExpoDomain(DC_NAME, EXPORT_NAME, SLEEP, TIME_LIMIT):
     Disconnect(1)
-

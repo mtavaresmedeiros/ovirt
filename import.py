@@ -75,4 +75,3 @@ print 'Detached Export Storage Domain'
 api.datacenters.get(DC_NAME).storagedomains.get(EXPORT_NAME).delete()
 print "Import VMS Finished"
 Disconnect(0)
-

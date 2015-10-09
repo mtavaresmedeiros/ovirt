@@ -7,7 +7,7 @@ import sys
 import time
 
 
-#Connect Ovirt
+# Connect Ovirt
 def Connect(url, username, password, ca_file):
     try:
         global api
@@ -22,7 +22,7 @@ def Connect(url, username, password, ca_file):
         return False
 
 
-#Disconnect Ovirt
+# Disconnect Ovirt
 def Disconnect(exitcode):
     api.disconnect()
     sys.exit(exitcode)
@@ -34,20 +34,21 @@ def AttachDomain(EXPORT_NAME, DC_NAME):
         DC = api.datacenters.get(DC_NAME)
         print 'Attaching Export Domain...'
         if DC.storagedomains.get(EXPORT_NAME):
-            if DC.storagedomains.get(EXPORT_NAME).status.state == 'maintenance':
-                if api.datacenters.get(DC_NAME).storagedomains.get(EXPORT_NAME).activate():
+            dc_status = DC.storagedomains.get(EXPORT_NAME).status.state
+            if dc_status == 'maintenance':
+                if DC.storagedomains.get(EXPORT_NAME).activate():
                     print 'Export Domain was activated successfully'
             else:
                 print 'Export Domain already atached. Skipping.'
         else:
             DC.storagedomains.add(api.storagedomains.get(EXPORT_NAME))
             print 'Export Domain successfully attached.'
-        
+
         return True
 
     except Exception as e:
         print 'Failed to add export domain:\n%s' % str(e)
-        
+
         return False
 
 
@@ -69,8 +70,9 @@ def CheckSnapStatus(SS_N, vm, SLEEP, TIME_LIMIT):
                         return True
                         break
                     if TIME_WAITING >= TIME_LIMIT:
-                        print 'ERROR: Snapshot in use after %s seconds.' % TIME_LIMIT
-                        raise 
+                        print('ERROR: Snapshot in use after %s seconds.' %
+                              TIME_LIMIT)
+                        raise
                     time.sleep(SLEEP)
                     TIME_WAITING += SLEEP
                 else:
@@ -80,7 +82,7 @@ def CheckSnapStatus(SS_N, vm, SLEEP, TIME_LIMIT):
 
         else:
             print 'No snapshot found'
-            
+
             return False
 
     except Exception as e:
@@ -88,7 +90,8 @@ def CheckSnapStatus(SS_N, vm, SLEEP, TIME_LIMIT):
 
         return False
 
-#Deleting Snapshot
+
+# Deleting Snapshot
 def DeleteSnapshot(SS_N, vm, SLEEP, TIME_LIMIT_EX):
     try:
         print 'Deleting Snapshot.'
@@ -102,7 +105,8 @@ def DeleteSnapshot(SS_N, vm, SLEEP, TIME_LIMIT_EX):
                 else:
                     break
                 if TIME_WAITING >= TIME_LIMIT_EX:
-                    print 'ERROR: Snapshot not deleted after %s seconds.' % TIME_LIMIT_EX
+                    print('ERROR: Snapshot not deleted after %s seconds.' %
+                          TIME_LIMIT_EX)
                     raise
                 TIME_WAITING += SLEEP
             print 'Snapshot successfully deleted'
@@ -127,7 +131,8 @@ def CreateSnapshot(vm, VM_N, SS_N, SLEEP, TIME_LIMIT):
             if snapshots[0].get_snapshot_status() == 'ok':
                 break
             if TIME_WAITING >= TIME_LIMIT:
-                print 'ERROR: Snapshot not create snapshot after %s seconds' % TIME_LIMIT
+                print('ERROR: Snapshot not create snapshot after %s seconds' %
+                      TIME_LIMIT)
                 raise
             time.sleep(SLEEP)
             TIME_WAITING += SLEEP
@@ -140,13 +145,13 @@ def CreateSnapshot(vm, VM_N, SS_N, SLEEP, TIME_LIMIT):
 
         return False
 
-    
+
 # Deleting previous backup VM
 def DelVmBkp(VM_BKP, vm, SLEEP, TIME_LIMIT):
     try:
         TIME_WAITING = 0
         print 'Checking previous backup VM...'
-        if api.vms.get(VM_BKP): 
+        if api.vms.get(VM_BKP):
             print 'Deleting ' + VM_BKP
             api.vms.get(VM_BKP).delete()
             while True:
@@ -155,7 +160,8 @@ def DelVmBkp(VM_BKP, vm, SLEEP, TIME_LIMIT):
                 else:
                     break
                 if TIME_WAITING >= TIME_LIMIT:
-                    print 'ERROR: VM not deleted after %s seconds' % TIME_LIMIT
+                    print('ERROR: VM not deleted after %s seconds' %
+                          TIME_LIMIT)
                     raise
                 TIME_WAITING += SLEEP
             print 'VM successfully removed'
@@ -172,20 +178,21 @@ def DelVmBkp(VM_BKP, vm, SLEEP, TIME_LIMIT):
 
 
 # Clone the snapshot into a VM
-def CloneSnapshot(VM_BKP,VM_N,CLUSTER_NAME, SS_N, SLEEP, TIME_LIMIT_EX):
+def CloneSnapshot(VM_BKP, VM_N, CLUSTER_NAME, SS_N, SLEEP, TIME_LIMIT_EX):
     try:
         VM_P = api.vms.get(VM_N)
-        SNAPSHOT = params.Snapshot(id=VM_P.snapshots.list(description=SS_N)[0].id)
-        SNAPSHOT_P = params.Snapshots(snapshot=[SNAPSHOT])
+        SNAP = params.Snapshot(id=VM_P.snapshots.list(description=SS_N)[0].id)
+        SNAP_P = params.Snapshots(snapshot=[SNAP])
         CL = api.clusters.get(CLUSTER_NAME)
-        api.vms.add(params.VM(name=VM_BKP, cluster=CL, snapshots=SNAPSHOT_P))
+        api.vms.add(params.VM(name=VM_BKP, cluster=CL, snapshots=SNAP_P))
         TIME_WAITING = 0
         print 'Cloning ' + VM_N + '...'
         while True:
             if api.vms.get(VM_BKP).status.state == 'down':
                 break
             if TIME_WAITING >= TIME_LIMIT_EX:
-                print 'ERROR: Snapshot not cloned after %s seconds' % TIME_LIMIT_EX
+                print('ERROR: Snapshot not cloned after %s seconds' %
+                      TIME_LIMIT_EX)
                 raise
             time.sleep(SLEEP)
             TIME_WAITING += SLEEP
@@ -196,7 +203,7 @@ def CloneSnapshot(VM_BKP,VM_N,CLUSTER_NAME, SS_N, SLEEP, TIME_LIMIT_EX):
     except Exception as e:
         print 'Failed to Clone a Snapshot:\n%s' % str(e)
 
-        return False    
+        return False
 
 
 # Checking if the VM exists in the export domain
@@ -211,11 +218,12 @@ def CheckVmExport(VM_BKP, SLEEP, TIME_LIMIT, EXPORT_NAME):
             VMB.delete()
             while True:
                 if SD.vms.get(VM_BKP):
-                   time.sleep(SLEEP)
+                    time.sleep(SLEEP)
                 else:
                     break
                 if TIME_WAITING >= TIME_LIMIT:
-                    print 'ERROR: VM not deleted after %s seconds' % TIME_LIMIT
+                    print('ERROR: VM not deleted after %s seconds' %
+                          TIME_LIMIT)
                     raise
                 TIME_WAITING += SLEEP
             print 'VM deleted successfully'
@@ -233,7 +241,7 @@ def CheckVmExport(VM_BKP, SLEEP, TIME_LIMIT, EXPORT_NAME):
 
 
 # Export VM
-def ExportVM(VM_BKP,EXPORT_NAME, SLEEP, TIME_LIMIT_EX):
+def ExportVM(VM_BKP, EXPORT_NAME, SLEEP, TIME_LIMIT_EX):
     try:
         SD = api.storagedomains.get(EXPORT_NAME)
         TIME_WAITING = 0
@@ -265,10 +273,13 @@ def MainExportDomain(EXPORT_NAME, SLEEP, TIME_LIMIT, DC_NAME):
         DC = api.datacenters.get(DC_NAME)
         DC.storagedomains.get(EXPORT_NAME).deactivate()
         while True:
-            if DC.storagedomains.get(EXPORT_NAME).status.state == 'maintenance':
+            SD = DC.storagedomains.get(EXPORT_NAME)
+            sd_status = SD.status.state == 'maintenance'
+            if sd_status == 'maintenance':
                 break
             if TIME_WAITING >= TIME_LIMIT:
-                print 'ERROR: Export Domain not maintenance after %s seconds' % TIME_LIMIT
+                print('ERROR: Export Domain not maintenance after %s seconds' %
+                      TIME_LIMIT)
                 raise
             time.sleep(SLEEP)
             TIME_WAITING += SLEEP
@@ -283,35 +294,40 @@ def MainExportDomain(EXPORT_NAME, SLEEP, TIME_LIMIT, DC_NAME):
 
 
 # Detach Export Domain
-def DetachExpoDomain(DC_NAME,EXPORT_NAME, SLEEP, TIME_LIMIT):
+def DetachExpoDomain(DC_NAME, EXPORT_NAME, SLEEP, TIME_LIMIT):
     try:
         while True:
-            print 'Detaching Export Domain'  
-            api.datacenters.get(DC_NAME).storagedomains.get(EXPORT_NAME).delete()
+            print 'Detaching Export Domain'
+            DC = api.datacenters.get(DC_NAME)
+            DC.storagedomains.get(EXPORT_NAME).delete()
             while True:
-                if api.storagedomains.get(EXPORT_NAME).status.state == 'unattached':
+                sd_status = if api.storagedomains.get(EXPORT_NAME).status.state
+                if sd_status == 'unattached':
                     break
                 if TIME_WAITING >= TIME_LIMIT:
-                    print 'ERROR: VM not deleted after %s seconds' % TIME_LIMIT
+                    print('ERROR: VM not deleted after %s seconds' %
+                          TIME_LIMIT)
                     raise
                 time.sleep(SLEEP)
                 TIME_WAITING += SLEEP
             print 'Export domain successfully detached'
 
-            return True 
-            
+            return True
+
     except Exception as e:
         print 'Failed detached export VM:\n%s' % str(e)
 
         return False
+
+
 # Inicio de Backup
-def backup(lists):
+def Backup(lists):
     if not AttachDomain(EXPORT_NAME, DC_NAME):
         Disconnect(1)
 
     for vm in lists:
         VM_N = vm.name
-        VM_BKP = VM_N + '_Backup'  # Last Name for VM Backup  
+        VM_BKP = VM_N + '_Backup'  # Last Name for VM Backup
 
         if CheckSnapStatus(SS_N, vm, SLEEP, TIME_LIMIT):
             if not DeleteSnapshot(SS_N, vm, SLEEP, TIME_LIMIT_EX):
@@ -319,21 +335,22 @@ def backup(lists):
 
         if not DelVmBkp(VM_BKP, vm, SLEEP, TIME_LIMIT):
             Disconnect(1)
-    
+
         if not CreateSnapshot(vm, VM_N, SS_N, SLEEP, TIME_LIMIT):
             Disconnect(1)
 
-        if not CloneSnapshot(VM_BKP, VM_N, CLUSTER_NAME, SS_N, SLEEP, TIME_LIMIT_EX):
+        if not CloneSnapshot(VM_BKP, VM_N, CLUSTER_NAME, SS_N, SLEEP,
+                             TIME_LIMIT_EX):
             Disconnect(1)
 
         if CheckSnapStatus(SS_N, vm, SLEEP, TIME_LIMIT):
             if not DeleteSnapshot(SS_N, vm, SLEEP, TIME_LIMIT_EX):
                 Disconnect(1)
 
-        if not CheckVmExport(VM_BKP, SLEEP, TIME_LIMIT,EXPORT_NAME):
+        if not CheckVmExport(VM_BKP, SLEEP, TIME_LIMIT, EXPORT_NAME):
             Disconnect(1)
 
-        if not ExportVM(VM_BKP,EXPORT_NAME, SLEEP, TIME_LIMIT_EX):
+        if not ExportVM(VM_BKP, EXPORT_NAME, SLEEP, TIME_LIMIT_EX):
             Disconnect(1)
 
         if not DelVmBkp(VM_BKP, vm, SLEEP, TIME_LIMIT):
