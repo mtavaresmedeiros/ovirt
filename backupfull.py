@@ -1,10 +1,15 @@
 #!/usr/bin/python
+
+import sys
+import threading
+import time
+
 from modules02 import *
 from ovirtsdk.xml import params
 from ovirtsdk.api import API
-import sys
-import time
-import threading
+from utils import sendemail
+
+
 start_time = time.time()
 
 api = Connect(ENGINE_SERVER, ENGINE_USER, ENGINE_PASS, ENGINE_CERT)
@@ -83,6 +88,13 @@ if __name__ == '__main__':
 
 end_time = time.time()
 total_time = ((end_time - start_time) / 3600)
-logging.info('backup completed successfully in : %.2f hours' % total_time)
-msg = ('backup completed successfully in : %.2f hours' % total_time)
-SendEmail(msg)
+
+msg = 'backup completed successfully in : %.2f hours' % total_time
+logging.info(msg)
+email = sendemail.Email('smtp.gmail.com:587',
+                        'user@example.com',
+                        'p4ssw0rd')
+email.send('user@example.com',
+           'dest@example.com',
+           'Subject',
+           msg)

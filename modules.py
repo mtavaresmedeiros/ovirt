@@ -7,9 +7,6 @@ from ovirtsdk.xml import params
 from ovirtsdk.api import API
 import psycopg2
 import logging
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
-import smtplib
 from datetime import date
 
 today = date.today()
@@ -70,7 +67,7 @@ SERVEREMAIL= 'smtp.gmail.com:587'
 username = 'user'
 password = 'senha'
 list_rm = ['lista de exclusao de vms']
-retencao = {'vm name': 7} "numero informa a quantiade de dias que fica retido um backup" 
+retencao = {'vm name': 7} #numero informa a quantiade de dias que fica retido um backup" 
 dias = ['Seg','Ter','Qua','Qui','Sex','Sab','Dom']
 day = date.today()
 number_day = date.today().day
@@ -360,25 +357,6 @@ def DelVmReten(vm, TIME_LIMIT, SLEEP, retencao, day, dias):
     except Exception as e:
         logging.error('Falha ao remover \n%s' %  str(e), exc_info=True)
         return False
-
-
-
-def SendEmail(body):
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = fromaddr
-        msg['To'] = toaddrs
-        msg['Subject'] = "Backup Completed"
-        msg.attach(MIMEText(body, 'plain'))
-        server = smtplib.SMTP(SERVEREMAIL)
-        server.starttls()
-        server.login(username,password)
-        text = msg.as_string()
-        server.sendmail(fromaddr, toaddrs, text)
-        server.quit()
-
-    except Exception as e:
-        logging.error('Failed send email:\n%s' % str(e))
 
 
 # Export Domain
